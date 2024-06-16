@@ -1,9 +1,17 @@
+#include <unistd.h>
+#include <sys/wait.h>
 #include <string.h>
 #include <stdlib.h>
-#include <sys/wait.h>
-#include <unistd.h>
 
-void	ft_error(char *str, char *arg)
+/*not needed in exam, but necessary if you want to use this tester:
+https://github.com/Glagan/42-exam-rank-04/blob/master/microshell/test.sh*/
+// #ifdef TEST_SH
+// # define TEST		1
+// #else
+// # define TEST		0
+// #endif
+
+void	ft_putstr_fd2(char *str, char *arg)
 {
 	while (*str)
 		write(2, str++, 1);
@@ -13,42 +21,42 @@ void	ft_error(char *str, char *arg)
 	write(2, "\n", 1);
 }
 
-void	ft_exec(char **argv, int i, int tmp_fd, char **env)
+void ft_execute(char *argv[], int i, int tmp_fd, char *env[])
 {
 	argv[i] = NULL;
 	dup2(tmp_fd, STDIN_FILENO);
 	close(tmp_fd);
 	execve(argv[0], argv, env);
-	ft_error("error: cannot execute", argv[0]);
+	ft_putstr_fd2("error: cannot execute ", argv[0]);
 	exit(1);
 }
 
-int main(int argc, char **argv, char **env)
+int	main(int argc, char *argv[], char *env[])
 {
 	int	i;
-	int	fd[2];
-	int	tmp_fd;
+	int fd[2];
+	int tmp_fd;
+	(void)argc;	// is needed in exam, because the exam tester compiles with -Wall -Wextra -Werror
 
 	i = 0;
-	(void)argc;
 	tmp_fd = dup(STDIN_FILENO);
-	while (argv[i] && argv[i + 1])
+	while (argv[i] && argv[i + 1]) //check if the end is reached
 	{
-		argv = &argv[i + 1];
+		argv = &argv[i + 1];	//the new argv start after the ; or |
 		i = 0;
-		if (argv[i] && strcmp(argv[i], ";") && strcmp(argv[i], "|"))
+		while (argv[i] && strcmp(argv[i], ";") && strcmp(argv[i], "|"))
 			i++;
-		if (strcmp(argv[0], "cd") == 0) // tratar o cd;
+		if (strcmp(argv[0], "cd") == 0) //cd
 		{
 			if (i != 2)
-				ft_error("error: cd: bad arguments", NULL);
+				ft_putstr_fd2("error: cd: bad arguments", NULL);
 			else if (chdir(argv[1]) != 0)
-				ft_error("error: cd: cannot change directory to", argv[1]);
+				ft_putstr_fd2("error: cd: cannot change directory to ", argv[1]	);
 		}
-		else if (i != 0 && (argv[i] == NULL || strcmp(argv[i], ";") == 0)) // exec no stdoud
+		else if (i != 0 && (argv[i] == NULL || strcmp(argv[i], ";") == 0)) //exec in stdout
 		{
-			if (fork() == 0)
-				ft_exec(argv, i, tmp_fd, env);
+			if ( fork() == 0)
+				ft_execute(argv, i, tmp_fd, env);
 			else
 			{
 				close(tmp_fd);
@@ -57,7 +65,7 @@ int main(int argc, char **argv, char **env)
 				tmp_fd = dup(STDIN_FILENO);
 			}
 		}
-		else if (i != 0 && strcmp(argv[i], "|") == 0)
+		else if(i != 0 && strcmp(argv[i], "|") == 0) 
 		{
 			pipe(fd);
 			if ( fork() == 0)
@@ -65,7 +73,7 @@ int main(int argc, char **argv, char **env)
 				dup2(fd[1], STDOUT_FILENO);
 				close(fd[0]);
 				close(fd[1]);
-				ft_exec(argv, i, tmp_fd, env);
+				ft_execute(argv, i, tmp_fd, env);
 			}
 			else
 			{
@@ -78,4 +86,3 @@ int main(int argc, char **argv, char **env)
 	close(tmp_fd);
 	return (0);
 }
-
