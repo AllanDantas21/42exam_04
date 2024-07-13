@@ -1,3 +1,10 @@
+	/* Por que a flag wuntraced?
+		 -O objetivo de usar WUNTRACED neste contexto é garantir que o processo pai aguarde a conclusão do processo filho ou entre em um estado interrompido
+		 antes de continuar a execução.
+		Isso é necessário para evitar race conditions e garantir que o processo filho tenha concluído sua execução antes que o processo pai tente ler ou
+		 gravar no canal ou modificar quaisquer recursos compartilhados.*/
+
+
 int	main(int argc, char **argv, char **env)
 {
 	int tmp_fd;  // fd temporario;
