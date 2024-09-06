@@ -31,8 +31,8 @@ int	main(int argc, char **argv, char **env)
 	tmp_fd = dup(STDIN_FILENO);  // duplico o  tmp fd para o stdin / -> tmp_fd vai guardar o fd[0] de um pipe, se houver pipe; 
 	while (argv[i] && argv[i + 1])
 	{
-		argv = &argv[i + 1];
-		i = 0;
+		argv = &argv[i + 1];  // na proxima iteração do loop, ele começa apartir do "|" ou ";"
+		i = 0;                // e o i volta a ser zero
 		while (argv[i] && strcmp(argv[i], ";") && strcmp(argv[i], "|")) // idx vai ser incrementado até um ; ou |
 			i++;                        
 		if (strcmp(argv[0], "cd") == 0)   // esse primeiro if é só para o CD
