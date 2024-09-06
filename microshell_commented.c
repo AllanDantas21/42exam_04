@@ -13,7 +13,7 @@ int	main(int argc, char **argv, char **env)
 	(void)argc;  // silenciar o argc
 
 	i = 0;
-	tmp_fd = dup(STDIN_FILENO);  // duplico o  tmp fd para o stdin / -> tmp_fd vai guardar o fd[0] de um pipe, se houver pipe;
+	tmp_fd = dup(STDIN_FILENO);  // duplico o  tmp fd para o stdin / -> tmp_fd vai guardar o fd[0] de um pipe, se houver pipe; 
 	while (argv[i] && argv[i + 1])
 	{
 		argv = &argv[i + 1];
@@ -31,20 +31,20 @@ int	main(int argc, char **argv, char **env)
 		{                                                                          // puro
 			if ( fork() == 0 )  // execa no processo filho 
 				ft_exec(argv, i, tmp_fd, env);
-			else   			// close no tmp_fd, waitpid e redefinir o tmp_fd para o stdin;
+			else   			// close no tmp_fd, waitpid e redefinir o tmp_fd para o stdin; -> * o tmp_fd pode estar guardando o fd[0] de um pipe anterior *
 			{
-				close(tmp_fd);
+ 				close(tmp_fd);
 				while(waitpid(-1, NULL, WUNTRACED) != -1) // lembrar da flag wuntraced
 					;
 				tmp_fd = dup(STDIN_FILENO);
 			}
 		}
-		else if (i != 0 && strcmp(argv[i], "|") == 0) 
-		{            // e por ultimo, tratar o pipe.
-			pipe(fd);  // pipa o fd;
-			if ( fork() == 0 ) // faz o fork pro exec 
+		else if (i != 0 && strcmp(argv[i], "|") == 0)  // ultimo if para o pipe
+		{  
+			pipe(fd); 
+			if ( fork() == 0 )
 			{   // processo filho
-				dup2(fd[1], STDOUT_FILENO); // dup2 do fd[1] pro Out
+				dup2(fd[1], STDOUT_FILENO); // dup2 do fd[1] pro out
 				close(fd[0]);             // close nos fds
 				close(fd[1]);
 				ft_exec(argv, i, tmp_fd, env); // e exec
@@ -53,10 +53,10 @@ int	main(int argc, char **argv, char **env)
 			{  // processo pai
 				close(fd[1]);     // close no fd[1];
 				close(tmp_fd);    // close no temp fd;
-				tmp_fd = fd[0];   // reseta o tmp fd pro fd[0];
+				tmp_fd = fd[0];   // atribui o tmp fd pro fd[0]; -> o tmp_fd vai ficar guardando o fd[0] desse pipe. para o caso de multiplos pipes
 			}
 		}
 	}
 	close(tmp_fd); // close no tmp_fd
-	return (0);  // return
+	return (0);
 }
