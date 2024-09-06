@@ -1,9 +1,24 @@
-	/* Por que a flag wuntraced?
-		 -O objetivo de usar WUNTRACED neste contexto é garantir que o processo pai aguarde a conclusão do processo filho ou entre em um estado interrompido
-		 antes de continuar a execução.
-		Isso é necessário para evitar race conditions e garantir que o processo filho tenha concluído sua execução antes que o processo pai tente ler ou
-		 gravar no canal ou modificar quaisquer recursos compartilhados.*/
+/* pelo o que eu vi, da pra passar no exame com 0 ao inves da flag Wuntraced */
 
+void	ft_error(char *err, char *arg)
+{
+	while(*err)
+		write(2, err++, 1);
+	if (arg)
+		while(*arg)
+			write(2, arg++, 1);
+	write(2, "\n", 1);
+}
+
+char	ft_exec(char **argv, int i, int tmp_fd, char **env) //função de exec
+{
+	argv[i] = NULL;                  // -> o argv[i] nesse caso pode ser o "|" , ";". atribuimos o NULL para separar o comando para o execve
+	dup2(tmp_fd, STDIN_FILENO);	 // -> no caso de ter tido um pipe anteriomente, fazemos o dup2 do tmp_fd para o stdin (tmp_fd tambem pode estar com o valor do stdin)
+	close(tmp_fd);
+	execve(argv[0], argv, env);	// se o execve funcionar, esse função vai ser encerrada nesse ponto, pois o execve mataria esse processo.
+	ft_error("error: cannot execute ", argv[0]); // se o execve nao funcionar ele desse para essa função de error, e depois para o exit(1), e encerra esse processo.
+	exit(1);
+}
 
 int	main(int argc, char **argv, char **env)
 {
