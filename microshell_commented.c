@@ -20,12 +20,12 @@ int	main(int argc, char **argv, char **env)
 		i = 0;
 		while (argv[i] && strcmp(argv[i], ";") && strcmp(argv[i], "|")) // idx vai ser incrementado até um ; ou |
 			i++;                        
-		if (strcmp(argv[0], "cd") == 0)   //primeira parte do shell é checar o builtin cd;
+		if (strcmp(argv[0], "cd") == 0)   // esse primeiro if é só para o CD
  		{ 
- 			if (i != 2) // se tiver mais que dois argumentos, printa erro;
+ 			if (i != 2)                                             // se tiver mais que dois argumentos, printa erro;
 				ft_error("error: cd: bad arguments", NULL);
-			else if (chdir(argv[1]) != 0) // else if chamando o chdir; 
-				ft_error("error: cd: cannot change directory to", argv[1]); //erro do chdir
+			else if (chdir(argv[1]) != 0)                                               // else if chamando o chdir; 
+				ft_error("error: cd: cannot change directory to", argv[1]);          //erro do chdir
 		}
 		else if (i != 0 && (argv[i] == NULL || strcmp(argv[i], ";") == 0))// tratar o exec
 		{                                                                 // puro
