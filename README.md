@@ -28,3 +28,11 @@ A função `ft_exec`:
         -   O processo filho redireciona sua saída padrão para o de escrita do pipe (`fd[1]`) e executa o comando com `ft_exec`.
         -   O processo pai fecha a extremidade de escrita do pipe e ajusta `tmp_fd` para o extremo de leitura (`fd[0]`). Isso conecta a saída de um comando à entrada do próximo no pipeline.
 -   **Finalização**: Após o loop, `close(tmp_fd)` é chamado para fechar o file descriptor original duplicado.
+
+  ### Porque isso Funciona com Apenas 1 `fd[2]` e `tmp_fd`
+
+-   **`fd[2]`** é reutilizado a cada criação de pipe. Você não precisa de múltiplos pares de descritores de pipe, porque assim que um pipe é usado, os descritores não são mais necessários:
+    
+    -   O processo atual escreve no `fd[1]`, e depois de usá-lo, o descritor de escrita é fechado.
+    -   O próximo processo lê do `fd[0]`, e após isso, o descritor de leitura é fechado.
+-   **`tmp_fd`** armazena o lado de leitura anterior (caso tenha havido um pipe), garantindo que o próximo comando possa ler corretamente da saída do processo anterior.
