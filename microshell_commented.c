@@ -13,13 +13,13 @@ int	main(int argc, char **argv, char **env)
 	(void)argc;  // silenciar o argc
 
 	i = 0;
-	tmp_fd = dup(STDIN_FILENO);  // duplico o  tmp fd para o stdin
-	while (argv[i] && argv[i + 1])  // enquanto tiver argumento e prox
+	tmp_fd = dup(STDIN_FILENO);  // duplico o  tmp fd para o stdin / -> tmp_fd vai guardar o fd[0] de um pipe, se houver pipe;
+	while (argv[i] && argv[i + 1])
 	{
-		argv = &argv[i + 1];          // passo para o prox argumento
-		i = 0;                        // idx recebe 0
-		while (argv[i] && strcmp(argv[i], ";") && strcmp(argv[i], "|")) // enquanto tiver arg
-			i++;                         // && forem diferente de ';' e '|', vai pra frente;
+		argv = &argv[i + 1];
+		i = 0;
+		while (argv[i] && strcmp(argv[i], ";") && strcmp(argv[i], "|")) // idx vai ser incrementado até um ; ou |
+			i++;                        
 		if (strcmp(argv[0], "cd") == 0)   //primeira parte do shell é checar o builtin cd;
  		{ 
  			if (i != 2) // se tiver mais que dois argumentos, printa erro;
