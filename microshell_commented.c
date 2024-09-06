@@ -27,11 +27,11 @@ int	main(int argc, char **argv, char **env)
 			else if (chdir(argv[1]) != 0)                                               // else if chamando o chdir; 
 				ft_error("error: cd: cannot change directory to", argv[1]);          //erro do chdir
 		}
-		else if (i != 0 && (argv[i] == NULL || strcmp(argv[i], ";") == 0))// tratar o exec
-		{                                                                 // puro
-			if ( fork() == 0 )     // faz o fork e execa
+		else if (i != 0 && (argv[i] == NULL || strcmp(argv[i], ";") == 0))         // tratar o exec
+		{                                                                          // puro
+			if ( fork() == 0 )  // execa no processo filho 
 				ft_exec(argv, i, tmp_fd, env);
-			else // senao da close no tmp_fd, waitpid no while, e dupa o tmp fd dnv;
+			else   			// close no tmp_fd, waitpid e redefinir o tmp_fd para o stdin;
 			{
 				close(tmp_fd);
 				while(waitpid(-1, NULL, WUNTRACED) != -1) // lembrar da flag wuntraced
